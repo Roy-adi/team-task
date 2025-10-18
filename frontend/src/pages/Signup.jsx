@@ -191,13 +191,13 @@ const SignUpPage = () => {
                   )}
                 </button>
 
-                <button
+                {/* <button
                   className="btn btn-primary w-full block"
                   onClick={handleGoogleSignup}
                 >
                   <i className="fab fa-google mr-2"></i>
                   Signup With Google
-                </button>
+                </button> */}
 
                 <div className="text-center mt-4">
                   <p className="text-sm">
