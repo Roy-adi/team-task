@@ -65,7 +65,7 @@ const Navbar = ({ onMenuClick, onSidebarToggle, showSidebar }) => {
             </button>
           )}
 
-          {/* Brand/Logo for mobile */}
+          {/* Logo for mobile */}
           <div className="lg:hidden">
             <div className="lg:block leading-tight">
                   <h1 className="text-2xl font-extrabold tracking-tight text-base-content select-none">

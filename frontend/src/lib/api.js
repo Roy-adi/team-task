@@ -134,7 +134,6 @@ export const updateTaskStatus = async (payload) => {
 
 export const updateTask = async (dataToSend) => {
   try {
-    console.log(dataToSend,'dataToSend')
     const {taskId, data} = dataToSend
     const response = await axiosInstance.post(`/update-task/${taskId}`, {...data});
     return response.data;
@@ -150,10 +149,51 @@ export async function getAnalytics() {
     const response = await axiosInstance.get("/analytics/dashboard");
     return response.data;
   } catch (error) {
-    console.log("Error in getTaskList:", error);
+    console.log("Error in getAnalytics:", error);
      throw error;
   }
 }
 
+export const getTaskDetails = async (taskId) => {
+  try {
+    const res = await axiosInstance.post("/tasks-details", taskId);
+    return res.data;
+  } catch (error) {
+    console.log("Error in getTaskDetails:", error);
+    return null;
+  }
+};
+
+export const createComment = async (payload) => {
+  try {
+    const res = await axiosInstance.post("/create-comment", payload);
+    return res.data;
+  } catch (error) {
+    console.log("Error in createComment:", error);
+    return null;
+  }
+};
+
+
+export const getCommentList = async (taskId) => {
+  try {
+    const res = await axiosInstance.post("/get-comment", taskId);
+    return res.data;
+  } catch (error) {
+    console.log("Error in createComment:", error);
+    return null;
+  }
+};
+
+
+export const deleteComment = async (commentId) => {
+  try {
+    const res = await axiosInstance.post("/delete-comment", commentId);
+    return res.data;
+  } catch (error) {
+    console.log("Error in deleteComment:", error);
+    return null;
+  }
+};
 
 

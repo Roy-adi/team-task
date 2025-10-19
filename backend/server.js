@@ -41,10 +41,12 @@ app.get("/", (req, res) => {
 import authRoutes from './routes/auth.route.js'
 import projectRoutes from './routes/projects.route.js'
 import taskRoutes from './routes/task.route.js'
+import commentRoutes from './routes/comment.route.js'
 
 app.use('/api/v1', authRoutes)
 app.use('/api/v1', projectRoutes)
 app.use('/api/v1', taskRoutes)
+app.use('/api/v1', commentRoutes)
 
 
 app.listen(PORT , ()=>{

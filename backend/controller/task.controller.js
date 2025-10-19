@@ -3,11 +3,10 @@ import { Project } from "../models/projets.model.js";
 import { Task } from "../models/task.model.js";
 import { User } from "../models/user.model.js";
 
-
-
 export const createTask = async (req, res) => {
   try {
-    const { projectId, title, description, priority, assigneeId, dueDate } = req.body;
+    const { projectId, title, description, priority, assigneeId, dueDate } =
+      req.body;
     const creatorId = req.user.id;
 
     // --- VALIDATION ---
@@ -33,7 +32,7 @@ export const createTask = async (req, res) => {
       });
     }
 
-    // Validate assignee 
+    // Validate assignee
     let validAssignee = null;
     if (assigneeId) {
       const user = await User.findById(assigneeId);
@@ -81,12 +80,15 @@ export const createTask = async (req, res) => {
 export const updateTask = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, status, priority, assigneeId, dueDate } = req.body;
+    const { title, description, status, priority, assigneeId, dueDate } =
+      req.body;
     const userId = req.user.id;
 
     const task = await Task.findById(id).populate("project");
     if (!task) {
-      return res.status(404).json({ success: false, message: "Task not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Task not found" });
     }
 
     const project = task.project;
@@ -101,20 +103,28 @@ export const updateTask = async (req, res) => {
 
     // --- VALIDATION ---
     if (title && title.trim() === "") {
-      return res.status(400).json({ success: false, message: "Title cannot be empty" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Title cannot be empty" });
     }
     if (status && !["Todo", "In Progress", "Done"].includes(status)) {
-      return res.status(400).json({ success: false, message: "Invalid status value" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid status value" });
     }
     if (priority && !["Low", "Medium", "High"].includes(priority)) {
-      return res.status(400).json({ success: false, message: "Invalid priority value" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid priority value" });
     }
 
     // --- Validate Assignee ---
     if (assigneeId) {
       const assignedUser = await User.findById(assigneeId);
       if (!assignedUser) {
-        return res.status(404).json({ success: false, message: "Assignee not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Assignee not found" });
       }
 
       // Assignee must be a member of the same project
@@ -158,7 +168,9 @@ export const deleteTask = async (req, res) => {
 
     const task = await Task.findById(id).populate("project");
     if (!task) {
-      return res.status(404).json({ success: false, message: "Task not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Task not found" });
     }
 
     const project = task.project;
@@ -177,7 +189,9 @@ export const deleteTask = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in deleteTask:", error);
-    res.status(500).json({ success: false, message: "Server error while deleting task" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error while deleting task" });
   }
 };
 
@@ -211,8 +225,8 @@ export const getUserTasks = async (req, res) => {
         path: "createdBy",
         select: "_id fullName email",
       })
-      .sort({ updatedAt: -1 }) 
-      .lean(); 
+      .sort({ updatedAt: -1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
@@ -228,28 +242,34 @@ export const getUserTasks = async (req, res) => {
   }
 };
 
-
 export const updateTaskStatus = async (req, res) => {
   try {
-    const { taskId,status } = req.body;
-    const userId = req.user?._id; 
+    const { taskId, status } = req.body;
+    const userId = req.user?._id;
 
     //  Validate ObjectId and input
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
-      return res.status(400).json({ success: false, message: "Invalid task ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid task ID" });
     }
 
     if (!status || !["Todo", "In Progress", "Done"].includes(status)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid or missing status. Allowed values: Todo, In Progress, Done",
+        message:
+          "Invalid or missing status. Allowed values: Todo, In Progress, Done",
       });
     }
 
     // Fetch task
-    const task = await Task.findById(taskId).select("createdBy assignee status title");
+    const task = await Task.findById(taskId).select(
+      "createdBy assignee status title"
+    );
     if (!task) {
-      return res.status(404).json({ success: false, message: "Task not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Task not found" });
     }
 
     //  Authorization check — only assignee or creator can update
@@ -263,7 +283,6 @@ export const updateTaskStatus = async (req, res) => {
         message: "You are not authorized to update this task status",
       });
     }
-
 
     task.status = status;
     await task.save();
@@ -287,8 +306,83 @@ export const updateTaskStatus = async (req, res) => {
   }
 };
 
+export const getTaskDetails = async (req, res) => {
+  try {
+    const { taskId } = req.body;
+    const userId = req.user?._id;
 
-// dashboard 
+    // Validate taskId
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Task ID." });
+    }
+
+    //  Fetch Task and populate related data
+    const task = await Task.findById(taskId)
+      .populate({
+        path: "project",
+        select: "title members description owner",
+        populate: {
+          path: "owner",
+          model: "User",
+          select: "fullName email profilePic",
+        },
+      })
+      .populate("assignee", "fullName email profilePic")
+      .populate("createdBy", "fullName email profilePic");
+
+    if (!task) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Task not found." });
+    }
+
+    const project = task.project;
+    const isAuthorized =
+      project.members.some((member) => member.equals(userId)) ||
+      task.createdBy._id.equals(userId);
+
+    if (!isAuthorized) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to view this task.",
+      });
+    }
+
+    //  Send successful response
+    res.status(200).json({
+      success: true,
+      message: "Task details fetched successfully.",
+      data: {
+        _id: task._id,
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        dueDate: task.dueDate,
+        assignee: task.assignee,
+        project: {
+          _id: project._id,
+          name: project.title,
+          desc: project.description,
+          project_owner: project.owner,
+        },
+        createdBy: task.createdBy,
+        createdAt: task.createdAt,
+        updatedAt: task.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error("Error in getTaskDetails:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching task details.",
+    });
+  }
+};
+
+// dashboard
 
 export const getDashboardAnalytics = async (req, res) => {
   try {

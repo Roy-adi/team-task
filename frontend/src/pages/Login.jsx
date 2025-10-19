@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Eye, EyeOff, ShipWheelIcon } from "lucide-react";
 import { Link } from "react-router";
-import videoCallAnimate from '../assets/videoCallAnimate.svg'
+import videoCallAnimate from "../assets/taemAnimation.svg";
 import { login } from "../lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { auth, provider } from "../utils/Firebase";
@@ -57,10 +57,17 @@ const Login = () => {
         {/* LOGIN FORM SECTION */}
         <div className="w-full lg:w-1/2 p-4 sm:p-8 flex flex-col">
           {/* LOGO */}
-          <div className="mb-4 flex items-center justify-start gap-2">
-            <ShipWheelIcon className="size-9 text-primary" />
-            <span className="text-3xl font-bold font-mono bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary  tracking-wider">
-              Streamify
+            <div className="mb-4 flex items-center justify-start gap-2">
+            <ShipWheelIcon className="size-9 text-primary" style={{ color: '#FFC727'}} />
+            <span className="text-3xl font-bold font-mono bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary tracking-wider" style={{ color: '#FFC727'}} >
+              <div className="lg:block leading-tight">
+                  <h1 className="text-2xl font-extrabold tracking-tight text-base-content select-none">
+                    Team<span className="font-light italic opacity-80">Up</span>
+                  </h1>
+                  <p className="text-[0.7rem] uppercase tracking-widest font-semibold opacity-70">
+                    Build Together
+                  </p>
+                </div>
             </span>
           </div>
 
@@ -77,7 +84,7 @@ const Login = () => {
                 <div>
                   <h2 className="text-xl font-semibold">Welcome Back</h2>
                   <p className="text-sm opacity-70">
-                    Sign in to your account to continue your language journey
+                   Log in in to your account to continue your Team journey
                   </p>
                 </div>
 
@@ -129,7 +136,7 @@ const Login = () => {
                     </div>
                   </div>
 
-                  <button type="submit" className="btn btn-primary w-full" disabled={isPending}>
+                  <button type="submit" className="btn btn-primary w-full" disabled={isPending} style={{ background: '#FFC727'}}>
                     {isPending ? (
                       <>
                         <span className="loading loading-spinner loading-xs"></span>
@@ -140,13 +147,13 @@ const Login = () => {
                     )}
                   </button>
 
-                   {/* <button
+                   <button
                   className="btn btn-primary w-full block"
-                  onClick={handleGooglelogin}
+                  onClick={handleGooglelogin} style={{ background: '#FFC727'}}
                 >
                   <i className="fab fa-google mr-2"></i>
                   Signup With Google
-                </button> */}
+                </button>
 
                   <div className="text-center mt-4">
                     <p className="text-sm">
@@ -171,9 +178,9 @@ const Login = () => {
             </div>
 
             <div className="text-center space-y-3 mt-6">
-              <h2 className="text-xl font-semibold">Connect with language partners worldwide</h2>
+              <h2 className="text-xl font-semibold">Connect with Your team</h2>
               <p className="opacity-70">
-                Practice conversations, make friends, and improve your language skills together
+                Team Build Up is the key of success
               </p>
             </div>
           </div>

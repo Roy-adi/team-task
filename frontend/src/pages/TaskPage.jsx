@@ -17,6 +17,7 @@ import CreateTaskModal from "../componets/createTask";
 import { useThemeStore } from "../store/useTheme";
 import { toast } from "react-toastify";
 import useAuthUser from "../hooks/useAuthUser";
+import { Link } from "react-router";
 
 const TaskPage = () => {
   const { authUser } = useAuthUser();
@@ -248,6 +249,7 @@ const TaskPage = () => {
                 </div>
 
                 {/* Card Body */}
+                <Link to={`/tasks-details/${task._id}`} >
                 <div className="p-5">
                   {/* Description */}
                   <p className="text-sm text-slate-600 mb-4 line-clamp-2">
@@ -298,7 +300,7 @@ const TaskPage = () => {
                       </p>
                     </div>
                   </div>
-                </div>
+                </div></Link>
 
                 {/* Card Footer */}
                 <div className="flex items-center justify-between gap-3 px-5 py-3 bg-slate-50 border-t border-slate-100">

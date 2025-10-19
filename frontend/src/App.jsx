@@ -10,6 +10,7 @@ import { useThemeStore } from "./store/useTheme";
 import PageLoader from "./pages/PageLoader";
 import ProjectsPage from "./pages/ProjectsPage";
 import TaskPage from "./pages/TaskPage";
+import TaskDetails from "./pages/TaskDetails";
 
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="projects" element={<ProjectsPage />} />
             <Route path="tasks" element={<TaskPage />} />
+            <Route path="tasks-details/:id" element={<TaskDetails/>} />
           </Route>
 
           {/* Login Route */}
