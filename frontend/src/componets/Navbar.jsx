@@ -67,9 +67,14 @@ const Navbar = ({ onMenuClick, onSidebarToggle, showSidebar }) => {
 
           {/* Brand/Logo for mobile */}
           <div className="lg:hidden">
-            <h1 className="text-lg font-bold text-base-content">
-              LinguaConnect
-            </h1>
+            <div className="lg:block leading-tight">
+                  <h1 className="text-2xl font-extrabold tracking-tight text-base-content select-none">
+                    Team<span className="font-light italic opacity-80">Up</span>
+                  </h1>
+                  <p className="text-[0.7rem] uppercase tracking-widest font-semibold opacity-70">
+                    Build Together
+                  </p>
+                </div>
           </div>
         </div>
 

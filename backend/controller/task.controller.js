@@ -286,3 +286,107 @@ export const updateTaskStatus = async (req, res) => {
     });
   }
 };
+
+
+// dashboard 
+
+export const getDashboardAnalytics = async (req, res) => {
+  try {
+    // 1️⃣ All tasks that have a dueDate
+    const tasksWithDueDate = await Task.find({ dueDate: { $ne: null } })
+      .sort({ dueDate: 1 })
+      .populate("assignee", "fullName email")
+      .populate("project", "title");
+
+    // 2️⃣ Top 5 users by tasks completed
+    const topUsersByTasksCompleted = await Task.aggregate([
+      { $match: { status: "Done" } },
+      {
+        $group: {
+          _id: "$assignee",
+          completedTasks: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $project: {
+          _id: 0,
+          userId: "$user._id",
+          fullName: "$user.fullName",
+          email: "$user.email",
+          completedTasks: 1,
+        },
+      },
+      { $sort: { completedTasks: -1 } },
+      { $limit: 5 },
+    ]);
+
+    // 3️⃣ Count of tasks by status
+    const taskStatusCounts = await Task.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // 4️⃣ Additional: Project and user insights
+    const totalProjects = await Project.countDocuments();
+    const totalTasks = await Task.countDocuments();
+    const totalUsers = await User.countDocuments();
+
+    const avgTasksPerProject =
+      totalProjects === 0 ? 0 : (totalTasks / totalProjects).toFixed(2);
+
+    // 5️⃣ Task priority distribution
+    const taskPriorityCounts = await Task.aggregate([
+      {
+        $group: {
+          _id: "$priority",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // 6️⃣ Recent tasks (last 5)
+    const recentTasks = await Task.find({})
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("assignee", "fullName email")
+      .populate("project", "title");
+
+    // 📊 Final response
+    return res.status(200).json({
+      success: true,
+      data: {
+        tasksWithDueDate, // 🟢 replaced the previous “tasksPerDay”
+        topUsersByTasksCompleted,
+        taskStatusCounts,
+        taskPriorityCounts,
+        recentTasks,
+        summary: {
+          totalUsers,
+          totalProjects,
+          totalTasks,
+          avgTasksPerProject,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching analytics:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load analytics dashboard.",
+      error: error.message,
+    });
+  }
+};

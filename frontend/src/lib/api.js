@@ -145,4 +145,15 @@ export const updateTask = async (dataToSend) => {
 };
 
 
+export async function getAnalytics() {
+  try {
+    const response = await axiosInstance.get("/analytics/dashboard");
+    return response.data;
+  } catch (error) {
+    console.log("Error in getTaskList:", error);
+     throw error;
+  }
+}
+
+
 
