@@ -22,7 +22,7 @@ export const createComment = async (req, res) => {
       return res.status(404).json({ success: false, message: "Task not found." });
     }
 
-    //  Authorization: only task assignee or creator can comment
+    //  only task assignee or creator can comment
     const isAuthorized =
       task.assignee?.equals(userId) || task.createdBy.equals(userId);
     if (!isAuthorized) {
@@ -66,7 +66,7 @@ export const getCommentsByTask = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid task ID." });
     }
 
-    // ✅ Check task existence & permissions
+    // Check task existence & permissions
     const task = await Task.findById(taskId).select("createdBy assignee");
     if (!task) {
       return res.status(404).json({ success: false, message: "Task not found." });
@@ -81,7 +81,7 @@ export const getCommentsByTask = async (req, res) => {
       });
     }
 
-    // ✅ Fetch comments
+    // Fetch comments
     const comments = await Comment.find({ task: taskId })
       .populate("author", "fullName email profilePic")
       .sort({ createdAt: 1 }); // oldest first for readability
@@ -106,12 +106,12 @@ export const deleteComment = async (req, res) => {
     const { commentId } = req.body;
     const userId = req.user?._id;
 
-    // ✅ Validate comment ID
+    // Validate comment ID
     if (!mongoose.Types.ObjectId.isValid(commentId)) {
       return res.status(400).json({ success: false, message: "Invalid comment ID." });
     }
 
-    // ✅ Find the comment with task relation
+    // Find the comment with task 
     const comment = await Comment.findById(commentId).populate({
       path: "task",
       select: "createdBy assignee",
@@ -121,7 +121,7 @@ export const deleteComment = async (req, res) => {
       return res.status(404).json({ success: false, message: "Comment not found." });
     }
 
-    // ✅ Authorization: comment author, task creator, or assignee can delete
+    //  comment author, task creator, or assignee can delete
     const task = comment.task;
     const isAuthorized =
       comment.author.equals(userId) ||

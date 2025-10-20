@@ -386,13 +386,13 @@ export const getTaskDetails = async (req, res) => {
 
 export const getDashboardAnalytics = async (req, res) => {
   try {
-    // 1️⃣ All tasks that have a dueDate
+    // 1All tasks that have a dueDate
     const tasksWithDueDate = await Task.find({ dueDate: { $ne: null } })
       .sort({ dueDate: 1 })
       .populate("assignee", "fullName email")
       .populate("project", "title");
 
-    // 2️⃣ Top 5 users by tasks completed
+    // Top 5 users by tasks completed
     const topUsersByTasksCompleted = await Task.aggregate([
       { $match: { status: "Done" } },
       {
@@ -423,7 +423,7 @@ export const getDashboardAnalytics = async (req, res) => {
       { $limit: 5 },
     ]);
 
-    // 3️⃣ Count of tasks by status
+    //  Count of tasks by status
     const taskStatusCounts = await Task.aggregate([
       {
         $group: {
@@ -433,7 +433,7 @@ export const getDashboardAnalytics = async (req, res) => {
       },
     ]);
 
-    // 4️⃣ Additional: Project and user insights
+    //  Project and user insights
     const totalProjects = await Project.countDocuments();
     const totalTasks = await Task.countDocuments();
     const totalUsers = await User.countDocuments();
@@ -441,7 +441,7 @@ export const getDashboardAnalytics = async (req, res) => {
     const avgTasksPerProject =
       totalProjects === 0 ? 0 : (totalTasks / totalProjects).toFixed(2);
 
-    // 5️⃣ Task priority distribution
+    //  Task priority distribution
     const taskPriorityCounts = await Task.aggregate([
       {
         $group: {
@@ -451,14 +451,14 @@ export const getDashboardAnalytics = async (req, res) => {
       },
     ]);
 
-    // 6️⃣ Recent tasks (last 5)
+    // Recent tasks (last 5)
     const recentTasks = await Task.find({})
       .sort({ createdAt: -1 })
       .limit(5)
       .populate("assignee", "fullName email")
       .populate("project", "title");
 
-    // 📊 Final response
+    // Final response
     return res.status(200).json({
       success: true,
       data: {

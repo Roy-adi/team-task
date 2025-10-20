@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 
 function getTokenFromRequest(req) {
-  // 1) Authorization header
+  //  Authorization header
   const authHeader =
     req.headers["authorization"] || req.headers["Authorization"];
   if (authHeader) {

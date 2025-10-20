@@ -32,7 +32,7 @@ const CreateProjectModal = ({ onClose, queryClient }) => {
     },
   });
 
-  // Debounce search with 500ms delay
+  // Debounce search with 900ms delay
   useEffect(() => {
     if (userSearch.trim().length < 2) {
       setSearchResults([]);
@@ -41,7 +41,7 @@ const CreateProjectModal = ({ onClose, queryClient }) => {
 
     const timer = setTimeout(() => {
       searchUsers({ keyword: userSearch });
-    }, 500);
+    }, 900);
 
     return () => clearTimeout(timer);
   }, [userSearch]);

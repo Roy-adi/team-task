@@ -188,13 +188,12 @@ export const searchUsersByEmail = async (req, res) => {
       });
     }
 
-    // Build a case-insensitive regex to match anywhere in email
     const emailRegex = new RegExp(keyword.trim(), "i");
 
     const MAX_RESULTS = 50;
 
     const users = await User.find({ email: { $regex: emailRegex } })
-      .select("_id fullName email profilePic") // only fetch safe fields
+      .select("_id fullName email profilePic") 
       .limit(MAX_RESULTS)
       .lean();
 
