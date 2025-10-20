@@ -131,7 +131,7 @@ const CreateTaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
     setFormData((prev) => ({
       ...prev,
       projectId: project._id,
-      assigneeId: "", // Changed from 'assignee' to 'assigneeId'
+      assigneeId: "", 
     }));
     setSelectedAssignee(null);
     setProjectMembers([]);
@@ -146,7 +146,7 @@ const CreateTaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
     setSelectedAssignee(member);
     setFormData((prev) => ({
       ...prev,
-      assigneeId: member._id, // Changed from 'assignee' to 'assigneeId'
+      assigneeId: member._id, 
     }));
     setShowAssigneeDropdown(false);
   };

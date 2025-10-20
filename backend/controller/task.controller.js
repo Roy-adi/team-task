@@ -386,11 +386,20 @@ export const getTaskDetails = async (req, res) => {
 
 export const getDashboardAnalytics = async (req, res) => {
   try {
-    // 1All tasks that have a dueDate
+    // All tasks that have a dueDate
     const tasksWithDueDate = await Task.find({ dueDate: { $ne: null } })
       .sort({ dueDate: 1 })
       .populate("assignee", "fullName email")
-      .populate("project", "title");
+      .populate({
+        path: "project",
+        select: "title members description owner",
+        populate: {
+          path: "owner",
+          model: "User",
+          select: "fullName email profilePic",
+        },
+      })
+      .lean()
 
     // Top 5 users by tasks completed
     const topUsersByTasksCompleted = await Task.aggregate([
@@ -456,13 +465,14 @@ export const getDashboardAnalytics = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(5)
       .populate("assignee", "fullName email")
-      .populate("project", "title");
+      .populate("project", "title")
+      .lean()
 
     // Final response
     return res.status(200).json({
       success: true,
       data: {
-        tasksWithDueDate, // 🟢 replaced the previous “tasksPerDay”
+        tasksWithDueDate, 
         topUsersByTasksCompleted,
         taskStatusCounts,
         taskPriorityCounts,
