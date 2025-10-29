@@ -1,11 +1,10 @@
 import React from "react";
 import { getAnalytics } from "../lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Calendar, CheckCircle, Clock, TrendingUp, Users, Briefcase, ListTodo, AlertCircle } from "lucide-react";
+import { Calendar, CheckCircle, Clock, TrendingUp, Users, Briefcase, ListTodo, AlertCircle, Target, Award } from "lucide-react";
+
 
 const Home = () => {
-  const queryClient = useQueryClient();
-
   const { data, isLoading, error } = useQuery({
     queryKey: ["analytics"],
     queryFn: getAnalytics,
@@ -31,6 +30,9 @@ const Home = () => {
   }
 
   const analytics = data?.data;
+  const role = data?.role;
+  const isMember = role === "member";
+  const isManagerOrOwner = role === "manager_or_owner";
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -75,67 +77,158 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-br from-base-100 to-base-200 p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-base-content mb-2">Analytics Dashboard</h1>
-        <p className="text-base-content/60">Overview of your projects and team performance</p>
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">
+              {isMember ? "My Dashboard" : "Analytics Dashboard"}
+            </h1>
+            <p className="opacity-60">
+              {isMember 
+                ? "Track your assigned tasks and deadlines" 
+                : "Overview of your projects and team performance"}
+            </p>
+          </div>
+          <div className="badge badge-lg badge-primary gap-2">
+            {isMember ? (
+              <>
+                <Target className="w-4 h-4" />
+                Team Member
+              </>
+            ) : (
+              <>
+                <Award className="w-4 h-4" />
+                Manager
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
-          <div className="card-body">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-base-content/60 text-sm font-medium">Total Users</p>
-                <p className="text-3xl font-bold text-base-content mt-2">{analytics?.summary?.totalUsers}</p>
-              </div>
-              <div className="bg-primary/10 p-3 rounded-lg">
-                <Users className="w-8 h-8 text-primary" />
+        {isManagerOrOwner && (
+          <>
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+              <div className="card-body">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="opacity-60 text-sm font-medium">Total Users</p>
+                    <p className="text-3xl font-bold mt-2">{analytics?.summary?.totalUsers || 0}</p>
+                  </div>
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <Users className="w-8 h-8 text-primary" />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
-          <div className="card-body">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-base-content/60 text-sm font-medium">Total Projects</p>
-                <p className="text-3xl font-bold text-base-content mt-2">{analytics?.summary?.totalProjects}</p>
-              </div>
-              <div className="bg-secondary/10 p-3 rounded-lg">
-                <Briefcase className="w-8 h-8 text-secondary" />
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+              <div className="card-body">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="opacity-60 text-sm font-medium">Total Projects</p>
+                    <p className="text-3xl font-bold mt-2">{analytics?.summary?.totalProjects || 0}</p>
+                  </div>
+                  <div className="bg-secondary/10 p-3 rounded-lg">
+                    <Briefcase className="w-8 h-8 text-secondary" />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
-          <div className="card-body">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-base-content/60 text-sm font-medium">Total Tasks</p>
-                <p className="text-3xl font-bold text-base-content mt-2">{analytics?.summary?.totalTasks}</p>
-              </div>
-              <div className="bg-accent/10 p-3 rounded-lg">
-                <ListTodo className="w-8 h-8 text-accent" />
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+              <div className="card-body">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="opacity-60 text-sm font-medium">Total Tasks</p>
+                    <p className="text-3xl font-bold mt-2">{analytics?.summary?.totalTasks || 0}</p>
+                  </div>
+                  <div className="bg-accent/10 p-3 rounded-lg">
+                    <ListTodo className="w-8 h-8 text-accent" />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
-          <div className="card-body">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-base-content/60 text-sm font-medium">Avg Tasks/Project</p>
-                <p className="text-3xl font-bold text-base-content mt-2">{analytics?.summary?.avgTasksPerProject}</p>
-              </div>
-              <div className="bg-info/10 p-3 rounded-lg">
-                <TrendingUp className="w-8 h-8 text-info" />
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+              <div className="card-body">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="opacity-60 text-sm font-medium">Avg Tasks/Project</p>
+                    <p className="text-3xl font-bold mt-2">{analytics?.summary?.avgTasksPerProject || "0.00"}</p>
+                  </div>
+                  <div className="bg-info/10 p-3 rounded-lg">
+                    <TrendingUp className="w-8 h-8 text-info" />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
+
+        {isMember && (
+          <>
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+              <div className="card-body">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="opacity-60 text-sm font-medium">My Projects</p>
+                    <p className="text-3xl font-bold mt-2">{analytics?.summary?.totalProjects || 0}</p>
+                  </div>
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <Briefcase className="w-8 h-8 text-primary" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+              <div className="card-body">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="opacity-60 text-sm font-medium">Assigned Tasks</p>
+                    <p className="text-3xl font-bold mt-2">{analytics?.summary?.totalTasks || 0}</p>
+                  </div>
+                  <div className="bg-secondary/10 p-3 rounded-lg">
+                    <ListTodo className="w-8 h-8 text-secondary" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+              <div className="card-body">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="opacity-60 text-sm font-medium">Pending Tasks</p>
+                    <p className="text-3xl font-bold mt-2">
+                      {analytics?.taskStatusCounts?.find(s => s._id === "Todo")?.count || 0}
+                    </p>
+                  </div>
+                  <div className="bg-warning/10 p-3 rounded-lg">
+                    <Clock className="w-8 h-8 text-warning" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+              <div className="card-body">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="opacity-60 text-sm font-medium">Completed</p>
+                    <p className="text-3xl font-bold mt-2">
+                      {analytics?.taskStatusCounts?.find(s => s._id === "Done")?.count || 0}
+                    </p>
+                  </div>
+                  <div className="bg-success/10 p-3 rounded-lg">
+                    <CheckCircle className="w-8 h-8 text-success" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Charts Section */}
@@ -143,27 +236,34 @@ const Home = () => {
         {/* Task Status Distribution */}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
-            <h2 className="card-title text-base-content mb-4">Task Status Distribution</h2>
+            <h2 className="card-title mb-4">Task Status Distribution</h2>
             <div className="space-y-4">
-              {analytics?.taskStatusCounts?.map((status) => (
-                <div key={status._id}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-base-content font-medium">{status._id}</span>
-                    <span className="text-base-content/60">{status.count} tasks</span>
+              {analytics?.taskStatusCounts?.length > 0 ? (
+                analytics.taskStatusCounts.map((status) => (
+                  <div key={status._id}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium">{status._id}</span>
+                      <span className="opacity-60">{status.count} tasks</span>
+                    </div>
+                    <progress
+                      className={`progress ${
+                        status._id === "Done"
+                          ? "progress-success"
+                          : status._id === "In Progress"
+                          ? "progress-warning"
+                          : "progress-info"
+                      } w-full`}
+                      value={status.count}
+                      max={analytics?.summary?.totalTasks || 1}
+                    ></progress>
                   </div>
-                  <progress
-                    className={`progress ${
-                      status._id === "Done"
-                        ? "progress-success"
-                        : status._id === "In Progress"
-                        ? "progress-warning"
-                        : "progress-info"
-                    } w-full`}
-                    value={status.count}
-                    max={analytics?.summary?.totalTasks}
-                  ></progress>
+                ))
+              ) : (
+                <div className="text-center py-8 opacity-60">
+                  <ListTodo className="w-12 h-12 mx-auto mb-2 opacity-40" />
+                  <p>No task data available</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -171,178 +271,253 @@ const Home = () => {
         {/* Task Priority Distribution */}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
-            <h2 className="card-title text-base-content mb-4">Task Priority Distribution</h2>
+            <h2 className="card-title mb-4">Task Priority Distribution</h2>
             <div className="space-y-4">
-              {analytics?.taskPriorityCounts?.map((priority) => (
-                <div key={priority._id}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-base-content font-medium">{priority._id}</span>
-                    <span className="text-base-content/60">{priority.count} tasks</span>
+              {analytics?.taskPriorityCounts?.length > 0 ? (
+                analytics.taskPriorityCounts.map((priority) => (
+                  <div key={priority._id}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium">{priority._id}</span>
+                      <span className="opacity-60">{priority.count} tasks</span>
+                    </div>
+                    <progress
+                      className={`progress ${
+                        priority._id === "High"
+                          ? "progress-error"
+                          : priority._id === "Medium"
+                          ? "progress-warning"
+                          : "progress-success"
+                      } w-full`}
+                      value={priority.count}
+                      max={analytics?.summary?.totalTasks || 1}
+                    ></progress>
                   </div>
-                  <progress
-                    className={`progress ${
-                      priority._id === "High"
-                        ? "progress-error"
-                        : priority._id === "Medium"
-                        ? "progress-warning"
-                        : "progress-success"
-                    } w-full`}
-                    value={priority.count}
-                    max={analytics?.summary?.totalTasks}
-                  ></progress>
+                ))
+              ) : (
+                <div className="text-center py-8 opacity-60">
+                  <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-40" />
+                  <p>No priority data available</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Top Performers */}
-      <div className="card bg-base-100 shadow-xl mb-8">
-        <div className="card-body">
-          <h2 className="card-title text-base-content mb-4">
-            <CheckCircle className="w-6 h-6 text-success" />
-            Top Performers
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th className="text-base-content">Name</th>
-                  <th className="text-base-content">Email</th>
-                  <th className="text-base-content">Completed Tasks</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics?.topUsersByTasksCompleted?.map((user) => (
-                  <tr key={user.userId} className="hover">
-                    <td className="text-base-content font-medium">{user.fullName}</td>
-                    <td className="text-base-content/60">{user.email}</td>
-                    <td>
-                      <div className="badge badge-success gap-2">
-                        {user.completedTasks} tasks
-                      </div>
-                    </td>
+      {/* Top Performers - Only for Manager/Owner */}
+      {isManagerOrOwner && analytics?.topUsersByTasksCompleted?.length > 0 && (
+        <div className="card bg-base-100 shadow-xl mb-8">
+          <div className="card-body">
+            <h2 className="card-title mb-4">
+              <CheckCircle className="w-6 h-6 text-success" />
+              Top Performers
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Completed Tasks</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {analytics.topUsersByTasksCompleted.map((user) => (
+                    <tr key={user.userId} className="hover">
+                      <td className="font-medium">{user.fullName}</td>
+                      <td className="opacity-60">{user.email}</td>
+                      <td>
+                        <div className="badge badge-success gap-2">
+                          {user.completedTasks} tasks
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Assigned Tasks - Only for Member */}
+      {isMember && analytics?.assignedTasks?.length > 0 && (
+        <div className="card bg-base-100 shadow-xl mb-8">
+          <div className="card-body">
+            <h2 className="card-title mb-4">
+              <Target className="w-6 h-6 text-primary" />
+              My Assigned Tasks
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Task</th>
+                    <th>Project</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Due Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {analytics.assignedTasks.map((task) => (
+                    <tr key={task._id} className="hover">
+                      <td>
+                        <div>
+                          <div className="font-bold">{task.title}</div>
+                          <div className="text-sm opacity-60 line-clamp-2">{task.description}</div>
+                        </div>
+                      </td>
+                      <td className="opacity-80">{task.project?.title}</td>
+                      <td>
+                        <div className={`badge ${getStatusColor(task.status)}`}>{task.status}</div>
+                      </td>
+                      <td>
+                        <div className={`badge ${getPriorityColor(task.priority)}`}>{task.priority}</div>
+                      </td>
+                      <td className="opacity-60">{formatDate(task.dueDate)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Upcoming Deadlines */}
-      <div className="card bg-base-100 shadow-xl mb-8">
-        <div className="card-body">
-          <h2 className="card-title text-base-content mb-4">
-            <Calendar className="w-6 h-6 text-error" />
-            Upcoming Task Deadlines
-          </h2>
-          <div className="space-y-4">
-            {analytics?.tasksWithDueDate
-              ?.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-              .map((task) => {
-                const daysUntil = getDaysUntilDue(task.dueDate);
-                const isOverdue = daysUntil < 0;
-                const isUrgent = daysUntil >= 0 && daysUntil <= 3;
+      {analytics?.tasksWithDueDate?.length > 0 && (
+        <div className="card bg-base-100 shadow-xl mb-8">
+          <div className="card-body">
+            <h2 className="card-title mb-4">
+              <Calendar className="w-6 h-6 text-error" />
+              {isMember ? "My Upcoming Deadlines" : "Upcoming Task Deadlines"}
+            </h2>
+            <div className="space-y-4">
+              {analytics.tasksWithDueDate
+                .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                .map((task) => {
+                  const daysUntil = getDaysUntilDue(task.dueDate);
+                  const isOverdue = daysUntil < 0;
+                  const isUrgent = daysUntil >= 0 && daysUntil <= 3;
 
-                return (
-                  <div
-                    key={task._id}
-                    className="card bg-base-200 shadow-md hover:shadow-lg transition-all duration-300"
-                  >
-                    <div className="card-body p-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <h3 className="font-bold text-base-content text-lg">{task.title}</h3>
-                          <p className="text-base-content/60 text-sm mt-1">{task.description}</p>
-                          <div className="flex flex-wrap gap-2 mt-3">
-                            <div className={`badge ${getStatusColor(task.status)}`}>
-                             Status : {task.status}
+                  return (
+                    <div
+                      key={task._id}
+                      className="card bg-base-200 shadow-md hover:shadow-lg transition-all duration-300"
+                    >
+                      <div className="card-body p-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <h3 className="font-bold text-lg">{task.title}</h3>
+                            <p className="opacity-60 text-sm mt-1 line-clamp-2">{task.description}</p>
+                            <div className="flex flex-wrap gap-2 mt-3">
+                              <div className={`badge ${getStatusColor(task.status)}`}>
+                                {task.status}
+                              </div>
+                              <div className={`badge ${getPriorityColor(task.priority)}`}>
+                                {task.priority}
+                              </div>
+                              <div className="badge badge-outline">{task.project?.title}</div>
                             </div>
-                            <div className={`badge ${getPriorityColor(task.priority)}`}>
-                             Priority : {task.priority}
+                          </div>
+                          <div className="flex flex-col items-start sm:items-end gap-2">
+                            <div className="flex items-center gap-2">
+                              <Clock
+                                className={`w-4 h-4 ${
+                                  isOverdue ? "text-error" : isUrgent ? "text-warning" : "opacity-60"
+                                }`}
+                              />
+                              <span
+                                className={`text-sm font-medium ${
+                                  isOverdue ? "text-error" : isUrgent ? "text-warning" : "opacity-60"
+                                }`}
+                              >
+                                {isOverdue
+                                  ? `${Math.abs(daysUntil)} days overdue`
+                                  : daysUntil === 0
+                                  ? "Due today"
+                                  : `${daysUntil} days left`}
+                              </span>
                             </div>
-                            <div className="badge badge-outline">Project : {task.project?.title}</div>
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-start sm:items-end gap-2">
-                          <div className="flex items-center gap-2">
-                            <Clock
-                              className={`w-4 h-4 ${
-                                isOverdue ? "text-error" : isUrgent ? "text-warning" : "text-base-content/60"
-                              }`}
-                            />
-                            <span
-                              className={`text-sm font-medium ${
-                                isOverdue ? "text-error" : isUrgent ? "text-warning" : "text-base-content/60"
-                              }`}
-                            >
-                              {isOverdue
-                                ? `${Math.abs(daysUntil)} days overdue`
-                                : daysUntil === 0
-                                ? "Due today"
-                                : `${daysUntil} days left`}
-                            </span>
-                          </div>
-                          <span className="text-xs text-base-content/60">{formatDate(task.dueDate)}</span>
-                          <div className="text-sm text-base-content/80">
-                            <span className="font-medium">{task.assignee?.fullName}</span>
+                            <span className="text-xs opacity-60">{formatDate(task.dueDate)}</span>
+                            {task.assignee?.fullName && (
+                              <div className="text-sm opacity-80">
+                                <span className="font-medium">{task.assignee.fullName}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Recent Tasks */}
-      <div className="card bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title text-base-content mb-4">
-            <Clock className="w-6 h-6 text-info" />
-            Recent Tasks
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th className="text-base-content">Task</th>
-                  <th className="text-base-content">Project</th>
-                  <th className="text-base-content">Assignee</th>
-                  <th className="text-base-content">Status</th>
-                  <th className="text-base-content">Priority</th>
-                  <th className="text-base-content">Due Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics?.recentTasks?.map((task) => (
-                  <tr key={task._id} className="hover">
-                    <td>
-                      <div>
-                        <div className="font-bold text-base-content">{task.title}</div>
-                        <div className="text-sm text-base-content/60">{task.description}</div>
-                      </div>
-                    </td>
-                    <td className="text-base-content/80">{task.project?.title}</td>
-                    <td className="text-base-content/80">{task.assignee?.fullName}</td>
-                    <td>
-                      <div className={`badge ${getStatusColor(task.status)}`}>{task.status}</div>
-                    </td>
-                    <td>
-                      <div className={`badge ${getPriorityColor(task.priority)}`}>{task.priority}</div>
-                    </td>
-                    <td className="text-base-content/60">{formatDate(task.dueDate)}</td>
+      {/* Recent Tasks - Only for Manager/Owner */}
+      {isManagerOrOwner && analytics?.recentTasks?.length > 0 && (
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+            <h2 className="card-title mb-4">
+              <Clock className="w-6 h-6 text-info" />
+              Recent Tasks
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Task</th>
+                    <th>Project</th>
+                    <th>Assignee</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Due Date</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {analytics.recentTasks.map((task) => (
+                    <tr key={task._id} className="hover">
+                      <td>
+                        <div>
+                          <div className="font-bold">{task.title}</div>
+                          <div className="text-sm opacity-60 line-clamp-2">{task.description}</div>
+                        </div>
+                      </td>
+                      <td className="opacity-80">{task.project?.title}</td>
+                      <td className="opacity-80">{task.assignee?.fullName}</td>
+                      <td>
+                        <div className={`badge ${getStatusColor(task.status)}`}>{task.status}</div>
+                      </td>
+                      <td>
+                        <div className={`badge ${getPriorityColor(task.priority)}`}>{task.priority}</div>
+                      </td>
+                      <td className="opacity-60">{formatDate(task.dueDate)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Empty State */}
+      {analytics?.summary?.totalTasks === 0 && (
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body text-center py-12">
+            <ListTodo className="w-16 h-16 mx-auto mb-4 opacity-40" />
+            <h3 className="text-2xl font-bold mb-2">No Tasks Yet</h3>
+            <p className="opacity-60">
+              {isMember 
+                ? "You don't have any assigned tasks at the moment." 
+                : "Get started by creating your first project and task."}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

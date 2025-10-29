@@ -11,6 +11,7 @@ import PageLoader from "./pages/PageLoader";
 import ProjectsPage from "./pages/ProjectsPage";
 import TaskPage from "./pages/TaskPage";
 import TaskDetails from "./pages/TaskDetails";
+import MultiStepForm from "./pages/multiStepForm";
 
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
             <Route path="projects" element={<ProjectsPage />} />
             <Route path="tasks" element={<TaskPage />} />
             <Route path="tasks-details/:id" element={<TaskDetails/>} />
+            <Route path="multi-step" element={<MultiStepForm />} />
           </Route>
 
           {/* Login Route */}

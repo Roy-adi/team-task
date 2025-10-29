@@ -6,6 +6,7 @@ import {
   getProjetcsMember,
   createTask,
   updateTask,
+  getUserProjects,
 } from "../lib/api";
 import { toast } from "react-toastify";
 import { useThemeStore } from "../store/useTheme";
@@ -35,31 +36,31 @@ const CreateTaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
     if (taskToEdit) {
       // Set form data
       setFormData({
-        title: taskToEdit.title,
-        description: taskToEdit.description,
-        priority: taskToEdit.priority,
-        dueDate: taskToEdit.dueDate.split("T")[0],
-        projectId: taskToEdit.project._id,
-        assigneeId: taskToEdit.assignee._id,
+        title: taskToEdit?.title,
+        description: taskToEdit?.description,
+        priority: taskToEdit?.priority,
+        dueDate: taskToEdit?.dueDate.split("T")[0],
+        projectId: taskToEdit?.project._id,
+        assigneeId: taskToEdit?.assignee?._id,
       });
 
       // Set selected project
       setSelectedProject({
-        _id: taskToEdit.project._id,
-        title: taskToEdit.project.title,
-        owner: taskToEdit.project.owner,
+        _id: taskToEdit.project?._id,
+        title: taskToEdit.project?.title,
+        owner: taskToEdit.project?.owner,
       });
 
       // Set selected assignee
       setSelectedAssignee({
-        _id: taskToEdit.assignee._id,
-        fullName: taskToEdit.assignee.fullName,
-        email: taskToEdit.assignee.email,
-        profilePic: taskToEdit.assignee.profilePic,
+        _id: taskToEdit.assignee?._id,
+        fullName: taskToEdit.assignee?.fullName,
+        email: taskToEdit.assignee?.email,
+        profilePic: taskToEdit.assignee?.profilePic,
       });
 
       // Fetch project members for the selected project
-      getMember({ projectId: taskToEdit.project._id });
+      getMember({ projectId: taskToEdit?.project._id });
     } else {
       // Reset form when creating new task
       setFormData({
@@ -76,10 +77,12 @@ const CreateTaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
     }
   }, [taskToEdit, isOpen]);
 
+  console.log(selectedAssignee,'selectedAssignee data')
+
   // Fetch Projects
   const { data: projectsData, isLoading: loadingProjects } = useQuery({
-    queryKey: ["projects"],
-    queryFn: getPojectsList,
+    queryKey: ["User_Projects"],
+    queryFn: getUserProjects,
     enabled: isOpen,
   });
 
@@ -131,7 +134,7 @@ const CreateTaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
     setFormData((prev) => ({
       ...prev,
       projectId: project._id,
-      assigneeId: "", 
+      assigneeId: "",
     }));
     setSelectedAssignee(null);
     setProjectMembers([]);
@@ -146,7 +149,7 @@ const CreateTaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
     setSelectedAssignee(member);
     setFormData((prev) => ({
       ...prev,
-      assigneeId: member._id, 
+      assigneeId: member?._id,
     }));
     setShowAssigneeDropdown(false);
   };
@@ -165,9 +168,10 @@ const CreateTaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
     e.preventDefault();
 
     if (isEditMode) {
-      const dataToSend={
-        taskId: taskToEdit._id, data: formData
-      }
+      const dataToSend = {
+        taskId: taskToEdit._id,
+        data: formData,
+      };
       updateTaskMutation(dataToSend);
     } else {
       createTaskMutation(formData);
@@ -376,7 +380,8 @@ const CreateTaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
                       ? selectedAssignee.fullName
                       : loadingMembers
                       ? "Loading members..."
-                      : "Select a member"}
+                      : "Select a member"} 
+                   
                   </span>
                   <ChevronDown
                     className={`w-5 h-5 text-slate-600 transition-transform ${
@@ -392,25 +397,33 @@ const CreateTaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
                         key={member._id}
                         type="button"
                         onClick={() => handleAssigneeSelect(member)}
-                        className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-slate-100 last:border-b-0 transition-colors flex items-center gap-3"
+                        className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-slate-100 last:border-b-0 transition-colors flex items-center justify-between gap-3"
                       >
-                        {member.profilePic ? (
-                          <img
-                            src={member.profilePic}
-                            alt={member.fullName}
-                            className="w-8 h-8 rounded-full border border-slate-300"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-blue-100 border border-slate-300" />
-                        )}
-                        <div>
-                          <p className="font-medium text-slate-900">
-                            {member.fullName}
-                          </p>
-                          <p className="text-sm text-slate-600">
-                            {member.email}
-                          </p>
+                        {/* Left section - profile + name + email */}
+                        <div className="flex items-center gap-3">
+                          {member.profilePic ? (
+                            <img
+                              src={member?.profilePic}
+                              alt={member?.fullName}
+                              className="w-8 h-8 rounded-full border border-slate-300"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-blue-100 border border-slate-300" />
+                          )}
+                          <div>
+                            <p className="font-medium text-slate-900">
+                              {member?.fullName}
+                            </p>
+                            <p className="text-sm text-slate-600">
+                              {member?.email}
+                            </p>
+                          </div>
                         </div>
+
+                        {/* Right section - role */}
+                        <p className="text-sm text-slate-600 whitespace-nowrap">
+                          {member?.role}
+                        </p>
                       </button>
                     ))}
                   </div>

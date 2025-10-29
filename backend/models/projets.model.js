@@ -18,8 +18,17 @@ const projectSchema = new mongoose.Schema(
     },
     members: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        role: {
+          type: String,
+          enum: ["admin", "project_manager", "member"],
+          default: "member",
+          required: true,
+        },
       },
     ],
   },

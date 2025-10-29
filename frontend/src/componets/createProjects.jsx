@@ -62,13 +62,13 @@ const CreateProjectModal = ({ onClose, queryClient }) => {
     addProjects(formState);
   };
 
-  const handleAddMember = (user) => {
+  const handleAddMember = (user, role = "member") => {
     if (!selectedUsers.find((u) => u._id === user._id)) {
-      const updatedUsers = [...selectedUsers, user];
+      const updatedUsers = [...selectedUsers, { ...user, role }];
       setSelectedUsers(updatedUsers);
       setFormState({
         ...formState,
-        members: updatedUsers.map((u) => u._id),
+        members: updatedUsers.map((u) => ({ user: u._id, role: u.role })),
       });
       setUserSearch("");
       setSearchResults([]);
@@ -81,7 +81,18 @@ const CreateProjectModal = ({ onClose, queryClient }) => {
     setSelectedUsers(updatedUsers);
     setFormState({
       ...formState,
-      members: updatedUsers.map((u) => u._id),
+      members: updatedUsers.map((u) => ({ user: u._id, role: u.role })),
+    });
+  };
+
+  const handleRoleChange = (userId, newRole) => {
+    const updatedUsers = selectedUsers.map((u) =>
+      u._id === userId ? { ...u, role: newRole } : u
+    );
+    setSelectedUsers(updatedUsers);
+    setFormState({
+      ...formState,
+      members: updatedUsers.map((u) => ({ user: u._id, role: u.role })),
     });
   };
 
@@ -94,11 +105,9 @@ const CreateProjectModal = ({ onClose, queryClient }) => {
         {/* Header */}
 
         <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100 z-10">
-          <h2 className="text-2xl font-bold text-slate-900">
-            Create Project
-          </h2>
+          <h2 className="text-2xl font-bold text-slate-900">Create Project</h2>
           <button
-           onClick={onClose}
+            onClick={onClose}
             className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
           >
             <X className="w-6 h-6 text-slate-600" />
@@ -118,11 +127,10 @@ const CreateProjectModal = ({ onClose, queryClient }) => {
               onChange={(e) =>
                 setFormState({ ...formState, title: e.target.value })
               }
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-950"
               placeholder="Enter project title"
             />
           </div>
-      
 
           {/* Description */}
           <div>
@@ -135,7 +143,7 @@ const CreateProjectModal = ({ onClose, queryClient }) => {
                 setFormState({ ...formState, description: e.target.value })
               }
               rows="4"
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none resize-none"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none resize-none text-slate-950"
               placeholder="Describe your project"
             />
           </div>
@@ -156,7 +164,7 @@ const CreateProjectModal = ({ onClose, queryClient }) => {
                     setShowDropdown(true);
                   }}
                   onFocus={() => setShowDropdown(true)}
-                  className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                  className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-950"
                   placeholder="Search users by email..."
                 />
               </div>
@@ -173,34 +181,55 @@ const CreateProjectModal = ({ onClose, queryClient }) => {
                       No users found
                     </div>
                   ) : (
-                    searchResults.map((user) => (
-                      <button
-                        key={user._id}
-                        type="button"
-                        onClick={() => handleAddMember(user)}
-                        className="w-full flex items-center gap-3 p-3 hover:bg-blue-50 transition-colors text-left border-b border-slate-100 last:border-b-0"
-                        disabled={selectedUsers.find((u) => u._id === user._id)}
-                      >
-                        <img
-                          src={user.profilePic}
-                          alt={user.fullName}
-                          className="w-10 h-10 rounded-full"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-slate-800 truncate">
-                            {user.fullName}
-                          </p>
-                          <p className="text-sm text-slate-500 truncate">
-                            {user.email}
-                          </p>
+                    searchResults.map((user) => {
+                      const isAdded = selectedUsers.find(
+                        (u) => u._id === user._id
+                      );
+                      return (
+                        <div
+                          key={user._id}
+                          className="w-full flex items-center gap-3 p-3 border-b border-slate-100 last:border-b-0"
+                        >
+                          <img
+                            src={user.profilePic}
+                            alt={user.fullName}
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-slate-800 truncate">
+                              {user.fullName}
+                            </p>
+                            <p className="text-sm text-slate-500 truncate">
+                              {user.email}
+                            </p>
+                          </div>
+                          {isAdded ? (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                              Added
+                            </span>
+                          ) : (
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleAddMember(user, "project_manager")
+                                }
+                                className="text-xs px-3 py-1.5 rounded-lg transition-colors font-medium border border-slate-300 hover:bg-slate-100 text-slate-950"
+                              >
+                                Project Manager
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleAddMember(user, "member")}
+                                className="text-xs px-3 py-1.5 rounded-lg transition-colors font-medium border border-slate-300 hover:bg-slate-100 text-slate-950"
+                              >
+                                Member
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        {selectedUsers.find((u) => u._id === user._id) && (
-                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                            Added
-                          </span>
-                        )}
-                      </button>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               )}
@@ -233,13 +262,28 @@ const CreateProjectModal = ({ onClose, queryClient }) => {
                           </p>
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveMember(user._id)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors ml-2"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={user.role}
+                          onChange={(e) =>
+                            handleRoleChange(user._id, e.target.value)
+                          }
+                          className="text-xs border border-slate-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-slate-950"
+                        >
+                          <option value="project_manager">
+                            {" "}
+                            Project Manager
+                          </option>
+                          <option value="member">Member</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveMember(user._id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors ml-2"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

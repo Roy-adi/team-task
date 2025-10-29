@@ -121,6 +121,16 @@ export const getProjetcsMember = async (payload) => {
   }
 };
 
+export const getUserProjects = async () => {
+  try {
+    const response = await axiosInstance.get("/get-user-projects");
+    return response.data;
+  } catch (error) {
+    toast.error(error.response?.data?.message || 'Failed')
+    throw error;
+  }
+};
+
 export const updateTaskStatus = async (payload) => {
   try {
     console.log('call from apilib')

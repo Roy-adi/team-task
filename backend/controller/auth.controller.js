@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { success } from "zod";
 
 export const signup = async (req, res) => {
   try {
@@ -210,4 +211,22 @@ export const searchUsersByEmail = async (req, res) => {
     });
   }
 };
+
+export const allUsersList = async(req,res) =>{
+  try {
+    const allusers = await User.find({}).lean();
+
+    return res.status(200).json({
+      success: true,
+      message: "All Users",
+      data: allusers,
+    });
+
+  } catch (error) {
+    return res.status(200).json({
+      success:false,
+      message: "server error"
+    })
+  }
+}
 
